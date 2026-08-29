@@ -1,0 +1,8 @@
+{
+  "name":"work-hours",
+  "version":"0.1.0",
+  "private":true,
+  "scripts":{
+    "test":"echo \"Add tests\" && exit 0"
+  }
+}
