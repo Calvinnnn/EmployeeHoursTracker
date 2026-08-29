@@ -1,2 +1,15 @@
-import './app/app.js';
-console.log('work-hours main loaded');
+import {
+    initializeWorkSessionForm
+} from "./features/work-sessions/workSessionUI.js";
+
+import {
+    registerServiceWorker
+} from "./pwa/registerSW.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    initializeWorkSessionForm();
+
+    registerServiceWorker();
+
+});
