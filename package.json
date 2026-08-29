@@ -1,8 +1,13 @@
 {
-  "name":"work-hours",
-  "version":"0.1.0",
-  "private":true,
-  "scripts":{
-    "test":"echo \"Add tests\" && exit 0"
+  "name": "work-hours",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
   }
 }
