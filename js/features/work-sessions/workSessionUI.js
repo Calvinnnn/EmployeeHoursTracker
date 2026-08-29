@@ -15,6 +15,14 @@ import {
     saveWorkSession
 } from "./workSessionService.js";
 
+import {
+    toast
+} from "../../components/toast.js";
+
+import {
+    initializeAttendance
+} from "../attendance/attendanceUI.js";
+
 /**
  * Initialize work session form.
  */
@@ -53,16 +61,19 @@ async function handleSubmit(event) {
 
         console.log("Work session saved:", savedSession);
 
-        alert("Work session saved successfully!");
+        toast("تم حفظ ساعات العمل بنجاح!", "success");
 
         event.target.reset();
 
         // Put today's date back after reset.
         initializeCurrentDate();
 
+        // Refresh attendance logs
+        await initializeAttendance();
+
     } catch (error) {
         console.error("Failed to save work session:", error);
 
-        alert(error.message);
+        toast(error.message, "error");
     }
 }
