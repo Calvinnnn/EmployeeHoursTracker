@@ -1,4 +1,5 @@
-import { workSessionService } from '../../../work-hours/js/features/work-sessions/workSessionService.js'
-test('workSessionService exists', ()=>{
-  expect(typeof workSessionService).toBe('object');
+import { saveWorkSession } from '../../js/features/work-sessions/workSessionService.js'
+
+test('workSessionService saveWorkSession is a function', () => {
+  expect(typeof saveWorkSession).toBe('function');
 });
