@@ -1,2 +1,167 @@
 /* cards.css */
-.card{background:#fff;border:1px solid #eee;padding:1rem;border-radius:8px}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    flex: 1;
+}
+
+.card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+    margin-bottom: 2rem;
+}
+
+.attendance-section {
+    display: none; /* Managed by the JS Router */
+}
+
+.attendance-header {
+    margin-bottom: 1.5rem;
+    text-align: right;
+    direction: rtl;
+}
+
+.section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.attendance-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+}
+
+.total-hours-card {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: var(--shadow-lg);
+    direction: rtl;
+}
+
+.total-hours-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 1.5rem;
+}
+
+.total-hours-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.total-hours-content span {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.total-hours-content strong {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.total-hours-button {
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: #ffffff;
+    color: var(--color-primary);
+    transition: var(--transition-all);
+    box-shadow: var(--shadow-sm);
+}
+
+.total-hours-button:hover {
+    transform: translateY(-2px);
+    background: #f8fafc;
+    box-shadow: var(--shadow-md);
+}
+
+.total-hours-button:active {
+    transform: translateY(0);
+}
+
+/* Earnings and Hourly Rate card */
+.earnings-card {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border);
+    direction: rtl;
+}
+
+.earnings-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--color-primary);
+    font-size: 1.5rem;
+}
+
+.earnings-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.earnings-content-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.earnings-content span {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.earnings-content strong {
+    font-size: 1.6rem;
+    color: var(--color-primary);
+    font-weight: 800;
+}
+
+.hourly-rate-input {
+    max-width: 100px;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.95rem !important;
+    border-radius: var(--radius-sm) !important;
+}
