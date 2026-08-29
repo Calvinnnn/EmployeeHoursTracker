@@ -1,106 +1,279 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <meta
-        name="description"
-        content="Employee Hours Tracker"
-    >
+<meta
+    name="description"
+    content="Employee Hours Tracker"
+>
 
-    <title>Employee Hours Tracker</title>
+<title>Employee Hours Tracker</title>
 
-    <link
-        rel="stylesheet"
-        href="./css/main.css"
-    >
+<link
+    rel="stylesheet"
+    href="./css/main.css"
+>
+
+<link
+    rel="manifest"
+    href="./manifest.webmanifest"
+>
+
 </head>
 
 <body>
 
-    <main class="container">
+<!-- Navigation -->
+<nav class="navbar">
 
-        <section class="card">
+    <a href="#home">
+        الرئيسية
+    </a>
 
-            <h1>Employee Hours Tracker</h1>
+    <a href="#attendance">
+        أيام الحضور
+    </a>
 
-            <form id="work-session-form">
-
-                <!-- Dev 3 -->
-                <div class="form-group">
-
-                    <label>Work Date</label>
-
-                    <input
-                        type="date"
-                        id="work-date"
-                        name="date"
-                        readonly
-                    >
-
-                    <span id="date-display"></span>
-
-                </div>
+</nav>
 
 
-                <!-- Dev 1 -->
-                <div class="form-group">
+<!-- Main Application -->
+<main class="container">
 
-                    <label for="start-time">
-                        Arrival Time
-                    </label>
+    <!-- Home / Work Session -->
+    <section
+        id="home"
+        class="card"
+    >
 
-                    <input
-                        type="time"
-                        id="start-time"
-                        name="startTime"
-                        required
-                    >
+        <h1>
+            Employee Hours Tracker
+        </h1>
 
-                </div>
+        <form id="work-session-form">
 
+            <!-- =========================
+                 Dev 3 - Current Date
+                 ========================= -->
 
-                <!-- Dev 2 -->
-                <div class="form-group">
+            <div class="form-group">
 
-                    <label for="end-time">
-                        Leaving Time
-                    </label>
+                <label for="work-date">
+                    Work Date
+                </label>
 
-                    <input
-                        type="time"
-                        id="end-time"
-                        name="endTime"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- Dev 4 -->
-                <button
-                    type="submit"
-                    id="submit-work-session"
+                <input
+                    type="date"
+                    id="work-date"
+                    name="date"
+                    readonly
                 >
-                    Save Work Session
-                </button>
 
-            </form>
+                <span id="date-display"></span>
 
-        </section>
+            </div>
 
-    </main>
 
-    <script
-        type="module"
-        src="./js/main.js"
-    ></script>
+            <!-- =========================
+                 Dev 1 - Arrival Time
+                 ========================= -->
+
+            <div class="form-group">
+
+                <label for="start-time">
+                    Arrival Time
+                </label>
+
+                <input
+                    type="time"
+                    id="start-time"
+                    name="startTime"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =========================
+                 Dev 2 - Leaving Time
+                 ========================= -->
+
+            <div class="form-group">
+
+                <label for="end-time">
+                    Leaving Time
+                </label>
+
+                <input
+                    type="time"
+                    id="end-time"
+                    name="endTime"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =========================
+                 Dev 4 - Submit
+                 ========================= -->
+
+            <button
+                type="submit"
+                id="submit-work-session"
+            >
+                Save Work Session
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- =========================
+         Attendance / أيام الحضور
+         ========================= -->
+
+    <section
+        id="attendance"
+        class="attendance-section"
+    >
+
+        <div class="attendance-header">
+
+            <div>
+
+                <span class="section-label">
+                    سجل العمل
+                </span>
+
+                <h2>
+                    أيام الحضور
+                </h2>
+
+                <p>
+                    سجل جميع أيام وساعات العمل
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Attendance Table -->
+
+        <div class="attendance-card">
+
+            <div class="table-wrapper">
+
+                <table class="attendance-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>اليوم</th>
+                            <th>وقت الحضور</th>
+                            <th>وقت الانصراف</th>
+                            <th>إجمالي الساعات</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody
+                        id="attendance-table-body"
+                    >
+                        <!--
+                            attendanceUI.js
+                            will insert rows here.
+                        -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- Total Hours -->
+
+        <div class="total-hours-card">
+
+            <div class="total-hours-icon">
+                ⏱
+            </div>
+
+            <div class="total-hours-content">
+
+                <span>
+                    إجمالي ساعات العمل
+                </span>
+
+                <strong id="total-hours-value">
+                    —
+                </strong>
+
+            </div>
+
+            <button
+                type="button"
+                id="show-total-hours"
+                class="total-hours-button"
+            >
+                عرض الإجمالي
+            </button>
+
+        </div>
+
+
+        <!-- Earnings / Hourly Rate -->
+
+        <div class="earnings-card">
+
+            <div class="earnings-icon">
+                💰
+            </div>
+
+            <div class="earnings-content">
+
+                <div class="earnings-content-row">
+                    <span>سعر الساعة (ج.م)</span>
+                    <input
+                        type="number"
+                        id="hourly-rate-input"
+                        class="hourly-rate-input"
+                        min="0"
+                        placeholder="100"
+                    >
+                </div>
+
+                <div class="earnings-content-row" style="margin-top: 0.5rem;">
+                    <span>الأرباح المتوقعة</span>
+                    <strong id="estimated-earnings-value">
+                        —
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- Application Entry Point -->
+
+<script type="module" src="js/main.js"></script>
 
 </body>
 
