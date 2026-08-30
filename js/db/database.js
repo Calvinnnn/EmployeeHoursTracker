@@ -1,5 +1,6 @@
-// Use browser-compatible ES module build of Dexie from CDN
-import Dexie from "https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.mjs";
+// Dexie is vendored locally (npm) so the app has no external runtime dependency
+// and still works offline once the service worker has cached the app shell.
+import Dexie from "dexie";
 
 export const db = new Dexie("EmployeeHoursTracker");
 
