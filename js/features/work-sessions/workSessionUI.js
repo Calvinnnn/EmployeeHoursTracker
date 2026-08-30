@@ -52,29 +52,33 @@ export async function initializeWorkSessionForm() {
     }
 
     bindAttendanceButtons();
-    updateSessionControls();
-
-    form.addEventListener("submit", handleSubmit);
-
     const draft = await draftRepository.load();
-    if (draft && draft.date) {
+
+    if (draft && draft.status === "active") {
         const dateInput = document.getElementById("work-date");
         if (dateInput) {
-            dateInput.value = draft.date;
+            dateInput.value = draft.date || getSelectedDate();
         }
 
         if (draft.startTime) {
             setStartTime(draft.startTime);
-            document.getElementById("start-time-display").textContent = formatTimeForDisplay(draft.startTime);
+            const startDisplay = document.getElementById("start-time-display");
+            if (startDisplay) {
+                startDisplay.textContent = formatTimeForDisplay(draft.startTime);
+            }
         }
 
         if (draft.endTime) {
             setEndTime(draft.endTime);
-            document.getElementById("end-time-display").textContent = formatTimeForDisplay(draft.endTime);
+            const endDisplay = document.getElementById("end-time-display");
+            if (endDisplay) {
+                endDisplay.textContent = formatTimeForDisplay(draft.endTime);
+            }
         }
-
-        updateSessionControls();
     }
+
+    updateSessionControls();
+    form.addEventListener("submit", handleSubmit);
 }
 
 function bindAttendanceButtons() {
@@ -82,25 +86,43 @@ function bindAttendanceButtons() {
     const endButton = document.getElementById("record-end-time");
 
     if (startButton) {
-        startButton.addEventListener("click", () => handleRecordTime("start"));
+        startButton.addEventListener("click", async () => {
+            await handleRecordTime("start");
+        });
     }
 
     if (endButton) {
-        endButton.addEventListener("click", () => handleRecordTime("end"));
+        endButton.addEventListener("click", async () => {
+            await handleRecordTime("end");
+        });
     }
 }
 
-function handleRecordTime(type) {
+async function handleRecordTime(type) {
     const now = new Date();
     const timestamp = now.getTime();
 
     if (type === "start") {
+        if (hasStartTime()) {
+            toast("وقت الحضور مسجل بالفعل في الجلسة النشطة.", "info");
+            updateSessionControls();
+            return;
+        }
+
         setStartTime(timestamp);
-        document.getElementById("start-time-display").textContent = formatTimeForDisplay(timestamp);
-        document.getElementById("record-start-time").textContent = "تم تسجيل وقت الحضور ✓";
-        document.getElementById("record-start-time").disabled = true;
-        updateDraft();
-        updateSessionControls();
+        const startDisplay = document.getElementById("start-time-display");
+        if (startDisplay) {
+            startDisplay.textContent = formatTimeForDisplay(timestamp);
+        }
+
+        try {
+            await updateDraft();
+            updateSessionControls();
+            toast("تم تسجيل وقت الحضور بنجاح.", "success");
+        } catch (error) {
+            console.error("Failed to persist active session start time:", error);
+            toast("فشل حفظ وقت الحضور، حاول مرة أخرى.", "error");
+        }
         return;
     }
 
@@ -110,21 +132,32 @@ function handleRecordTime(type) {
     }
 
     setEndTime(timestamp);
-    document.getElementById("end-time-display").textContent = formatTimeForDisplay(timestamp);
-    document.getElementById("record-end-time").textContent = "تم تسجيل وقت الانصراف ✓";
-    document.getElementById("record-end-time").disabled = true;
-    updateDraft();
-    updateSessionControls();
+    const endDisplay = document.getElementById("end-time-display");
+    if (endDisplay) {
+        endDisplay.textContent = formatTimeForDisplay(timestamp);
+    }
+
+    try {
+        await updateDraft();
+        updateSessionControls();
+        toast("تم تسجيل وقت الانصراف بنجاح.", "success");
+    } catch (error) {
+        console.error("Failed to persist active session end time:", error);
+        toast("فشل حفظ وقت الانصراف، حاول مرة أخرى.", "error");
+    }
 }
 
-function updateDraft() {
-    draftRepository.save({
+async function updateDraft() {
+    const payload = {
         id: "active-session",
         date: getSelectedDate(),
-        startTime: getStartTime(),
-        endTime: getEndTime(),
+        startTime: getStartTime() || null,
+        endTime: getEndTime() || null,
+        status: "active",
         updatedAt: Date.now()
-    });
+    };
+
+    await draftRepository.save(payload);
 }
 
 function updateSessionControls() {
@@ -203,9 +236,11 @@ async function handleSubmit(event) {
         event.target.reset();
         setStartTime("");
         setEndTime("");
-        document.getElementById("start-time-display").textContent = "لم يتم التسجيل";
-        document.getElementById("end-time-display").textContent = "لم يتم التسجيل";
-        draftRepository.clear();
+        const startDisplay = document.getElementById("start-time-display");
+        const endDisplay = document.getElementById("end-time-display");
+        if (startDisplay) startDisplay.textContent = "لم يتم التسجيل";
+        if (endDisplay) endDisplay.textContent = "لم يتم التسجيل";
+        await draftRepository.clear();
         initializeCurrentDate();
         updateSessionControls();
         await initializeAttendance();

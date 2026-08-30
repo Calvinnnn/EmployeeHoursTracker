@@ -8,10 +8,16 @@ export const draftRepository = {
      * @returns {Promise<void>}
      */
     async save(draft) {
+        const timestamp = Date.now();
+
         await db.drafts.put({
             id: "active-session",
+            status: "active",
+            createdAt: draft.createdAt ?? timestamp,
+            updatedAt: timestamp,
             ...draft,
-            updatedAt: Date.now()
+            id: "active-session",
+            status: draft.status ?? "active"
         });
     },
 
