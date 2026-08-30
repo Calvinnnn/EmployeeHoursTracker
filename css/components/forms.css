@@ -49,3 +49,24 @@ input[readonly] {
   margin-top: 0.25rem;
 }
 
+.time-display,
+.session-summary {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.secondary-button {
+  background: var(--color-secondary, #0f172a);
+}
+
+.secondary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
