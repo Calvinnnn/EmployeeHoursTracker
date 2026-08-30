@@ -3,8 +3,8 @@ import Dexie from "https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.mjs";
 
 export const db = new Dexie("EmployeeHoursTracker");
 
-db.version(1).stores({
-    workSessions: "++id, date, startTime, endTime",
+db.version(2).stores({
+    workSessions: "id, date, startTime, endTime, durationMinutes, createdAt",
     settings: "key",
-    drafts: "++id, createdAt"
+    drafts: "id, createdAt, updatedAt"
 });

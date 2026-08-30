@@ -1,10 +1,12 @@
 import {
     getAttendanceDays,
-    getTotalAttendanceHours
+    getTotalAttendanceHours,
+    deleteAttendanceSession
 } from "./attendanceService.js";
 
 import {
-    formatDateForDisplay
+    formatDateForDisplay,
+    formatTimeForDisplay
 } from "../../calculations/dates.js";
 
 import {
@@ -16,6 +18,14 @@ import {
     calculateEarnings
 } from "../../calculations/earnings.js";
 
+import {
+    showModal
+} from "../../components/modal.js";
+
+import {
+    toast
+} from "../../components/toast.js";
+
 let currentTotalHours = 0;
 
 /**
@@ -24,7 +34,6 @@ let currentTotalHours = 0;
 export async function initializeAttendance() {
     await renderAttendanceDays();
 
-    // Cache the total hours initially
     try {
         currentTotalHours = await getTotalAttendanceHours();
     } catch (e) {
@@ -78,11 +87,18 @@ export async function renderAttendanceDays() {
             tableBody.appendChild(row);
         });
 
+        tableBody.querySelectorAll(".delete-session-btn").forEach((button) => {
+            button.addEventListener("click", async (event) => {
+                const sessionId = event.currentTarget.dataset.sessionId;
+                await handleDeleteSession(sessionId);
+            });
+        });
+
     } catch (error) {
         console.error("Failed to load attendance days:", error);
         tableBody.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     Failed to load attendance days.
                 </td>
             </tr>
@@ -102,10 +118,19 @@ function createAttendanceRow(day) {
 
     row.innerHTML = `
         <td>${formattedDate}</td>
-        <td>${day.startTime}</td>
-        <td>${day.endTime}</td>
+        <td>${formatTimeForDisplay(day.startTime)}</td>
+        <td>${formatTimeForDisplay(day.endTime)}</td>
         <td class="hours-cell">
-            ${formatHours(day.totalHours)}
+            ${day.readableDuration || formatHours(day.totalHours)}
+        </td>
+        <td>
+            <button
+                type="button"
+                class="delete-session-btn"
+                data-session-id="${day.id}"
+            >
+                حذف
+            </button>
         </td>
     `;
 
@@ -119,18 +144,19 @@ function createAttendanceRow(day) {
  * @returns {string}
  */
 function formatHours(hours) {
-    const wholeHours = Math.floor(hours);
-    let minutes = Math.round((hours - wholeHours) * 60);
+    const totalMinutes = Math.round((Number(hours) || 0) * 60);
+    const wholeHours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
 
-    if (minutes === 60) {
-        return `${wholeHours + 1}h`;
+    if (wholeHours > 0 && minutes > 0) {
+        return `${wholeHours}h ${minutes}m`;
     }
 
-    if (minutes === 0) {
+    if (wholeHours > 0) {
         return `${wholeHours}h`;
     }
 
-    return `${wholeHours}h ${minutes}m`;
+    return `${minutes}m`;
 }
 
 /**
@@ -141,11 +167,36 @@ function formatHours(hours) {
 function renderEmptyState(tableBody) {
     tableBody.innerHTML = `
         <tr>
-            <td colspan="4" class="empty-state">
+            <td colspan="5" class="empty-state">
                 لا توجد أيام حضور حتى الآن
             </td>
         </tr>
     `;
+}
+
+async function handleDeleteSession(sessionId) {
+    if (!sessionId) {
+        return;
+    }
+
+    const modal = showModal(
+        '<div><p>هل أنت متأكد من حذف سجل العمل هذا؟</p></div>',
+        {
+            confirmText: "حذف",
+            cancelText: "إلغاء",
+            onConfirm: async () => {
+                await deleteAttendanceSession(sessionId);
+                await renderAttendanceDays();
+                currentTotalHours = await getTotalAttendanceHours();
+                await updateEarnings();
+                toast("تم حذف سجل العمل بنجاح.", "success");
+                modal.remove();
+            },
+            onCancel: () => {
+                modal.remove();
+            }
+        }
+    );
 }
 
 /**
