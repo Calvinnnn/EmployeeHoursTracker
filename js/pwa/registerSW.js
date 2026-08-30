@@ -9,7 +9,7 @@ export async function registerServiceWorker() {
 
     try {
         const registration =
-            await navigator.serviceWorker.register("./js/pwa/sw.js");
+            await navigator.serviceWorker.register("./sw.js");
 
         console.log(
             "Service Worker registered:",
