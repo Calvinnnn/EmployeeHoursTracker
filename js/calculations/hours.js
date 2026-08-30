@@ -25,8 +25,11 @@ export function calculateHours(startTime, endTime) {
 
         const startTotalMinutes = Number(startTimeMatch[1]) * 60 + Number(startTimeMatch[2]);
         const endTotalMinutes = Number(endTimeMatch[1]) * 60 + Number(endTimeMatch[2]);
+        const diffMinutes = endTotalMinutes >= startTotalMinutes
+            ? endTotalMinutes - startTotalMinutes
+            : (24 * 60) - (startTotalMinutes - endTotalMinutes);
 
-        return Math.max(0, (endTotalMinutes - startTotalMinutes) / 60);
+        return Math.max(0, diffMinutes / 60);
     }
 
     return 0;
@@ -60,7 +63,7 @@ export function formatDuration(totalMinutes) {
     const total = Number(totalMinutes);
 
     if (!Number.isFinite(total) || total <= 0) {
-        return "0h";
+        return "0m";
     }
 
     const wholeHours = Math.floor(total / 60);

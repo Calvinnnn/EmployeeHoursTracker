@@ -53,7 +53,13 @@ export function formatTimeForDisplay(value) {
         }
 
         if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
-            return trimmed;
+            const [hours, minutes] = trimmed.split(":").map(Number);
+            if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+                return "لم يتم التسجيل";
+            }
+
+            const displayHour = ((hours + 11) % 12) + 1;
+            return `${displayHour}:${String(minutes).padStart(2, "0")}`;
         }
 
         const timestamp = Number(trimmed);
@@ -74,9 +80,8 @@ export function formatTimeForDisplay(value) {
         return "لم يتم التسجيل";
     }
 
-    return date.toLocaleTimeString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-    });
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const displayHour = ((hours + 11) % 12) + 1;
+    return `${displayHour}:${String(minutes).padStart(2, "0")}`;
 }
