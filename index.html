@@ -17,6 +17,21 @@
 
 <title>Employee Hours Tracker</title>
 
+<!--
+    Import map used ONLY when the app is served as bare source from a static
+    host (e.g. GitHub Pages "Deploy from a branch", no build step). In that
+    case browsers cannot resolve the bare "dexie" specifier by themselves;
+    this map points it at the CDN build. In dev/build Vite resolves "dexie"
+    from node_modules and bundles it, so this map is never used there.
+-->
+<script type="importmap">
+    {
+        "imports": {
+            "dexie": "https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.mjs"
+        }
+    }
+</script>
+
 <link
     rel="stylesheet"
     href="./css/main.css"
@@ -29,8 +44,7 @@
 
 <link
     rel="icon"
-    type="image/png"
-    href="/assets/icons/icon-192.png"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%90%3C/text%3E%3C/svg%3E"
 >
 
 </head>
