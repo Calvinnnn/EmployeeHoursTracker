@@ -4,25 +4,24 @@
  */
 
 /**
- * Get the selected end time.
+ * Get the selected end time timestamp.
  *
  * @returns {string}
- * Example: "17:30"
  */
 export function getEndTime() {
     const input = document.getElementById("end-time");
 
     if (!input) {
-        throw new Error("End time input was not found.");
+        return "";
     }
 
     return input.value;
 }
 
 /**
- * Set the end time.
+ * Set the end time timestamp.
  *
- * @param {string} time
+ * @param {string|number} time
  */
 export function setEndTime(time) {
     const input = document.getElementById("end-time");
@@ -31,7 +30,7 @@ export function setEndTime(time) {
         throw new Error("End time input was not found.");
     }
 
-    input.value = time;
+    input.value = time == null ? "" : String(time);
 }
 
 /**
@@ -40,5 +39,5 @@ export function setEndTime(time) {
  * @returns {boolean}
  */
 export function hasEndTime() {
-    return getEndTime().trim() !== "";
+    return getEndTime() !== "" && getEndTime() !== null && getEndTime() !== undefined;
 }

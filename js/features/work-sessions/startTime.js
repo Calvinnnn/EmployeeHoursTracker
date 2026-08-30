@@ -4,25 +4,24 @@
  */
 
 /**
- * Get the selected start time.
+ * Get the selected start time timestamp.
  *
  * @returns {string}
- * Example: "09:30"
  */
 export function getStartTime() {
     const input = document.getElementById("start-time");
 
     if (!input) {
-        throw new Error("Start time input was not found.");
+        return "";
     }
 
     return input.value;
 }
 
 /**
- * Set the start time.
+ * Set the start time timestamp.
  *
- * @param {string} time
+ * @param {string|number} time
  */
 export function setStartTime(time) {
     const input = document.getElementById("start-time");
@@ -31,7 +30,7 @@ export function setStartTime(time) {
         throw new Error("Start time input was not found.");
     }
 
-    input.value = time;
+    input.value = time == null ? "" : String(time);
 }
 
 /**
@@ -40,5 +39,5 @@ export function setStartTime(time) {
  * @returns {boolean}
  */
 export function hasStartTime() {
-    return getStartTime().trim() !== "";
+    return getStartTime() !== "" && getStartTime() !== null && getStartTime() !== undefined;
 }

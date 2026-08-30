@@ -3,6 +3,10 @@ import {
 } from "../../db/repositories/workSessionRepository.js";
 
 import {
+    calculateDuration
+} from "../../calculations/hours.js";
+
+import {
     validateWorkSession
 } from "./workSessionValidation.js";
 
@@ -19,17 +23,20 @@ export async function saveWorkSession(data) {
         throw new Error(validation.errors.join(" "));
     }
 
+    const startTime = Number(data.startTime);
+    const endTime = Number(data.endTime);
+    const durationMinutes = Number(data.durationMinutes ?? calculateDuration(startTime, endTime));
+
     const workSession = {
+        id: data.id ?? crypto.randomUUID(),
         date: data.date,
-        startTime: data.startTime,
-        endTime: data.endTime,
-        createdAt: new Date().toISOString()
+        startTime,
+        endTime,
+        durationMinutes,
+        createdAt: Date.now()
     };
 
-    const id = await createWorkSession(workSession);
+    await createWorkSession(workSession);
 
-    return {
-        id,
-        ...workSession
-    };
+    return workSession;
 }

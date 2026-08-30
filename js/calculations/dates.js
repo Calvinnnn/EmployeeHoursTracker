@@ -33,3 +33,50 @@ export function formatDateForDisplay(isoDate) {
 
     return `${month}/${day}/${year}`;
 }
+
+/**
+ * Format a stored timestamp or HH:MM value for time display.
+ *
+ * @param {string|number} value
+ * @returns {string}
+ */
+export function formatTimeForDisplay(value) {
+    if (value === null || value === undefined || value === "") {
+        return "لم يتم التسجيل";
+    }
+
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+
+        if (!trimmed) {
+            return "لم يتم التسجيل";
+        }
+
+        if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
+            return trimmed;
+        }
+
+        const timestamp = Number(trimmed);
+        if (!Number.isFinite(timestamp)) {
+            return "لم يتم التسجيل";
+        }
+
+        value = timestamp;
+    }
+
+    const timestamp = Number(value);
+    if (!Number.isFinite(timestamp)) {
+        return "لم يتم التسجيل";
+    }
+
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+        return "لم يتم التسجيل";
+    }
+
+    return date.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+    });
+}
