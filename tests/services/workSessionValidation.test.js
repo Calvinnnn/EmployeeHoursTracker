@@ -11,6 +11,17 @@ test('validateWorkSession validates valid session', () => {
   expect(result.errors.length).toBe(0);
 });
 
+test('validateWorkSession validates timestamp-based session values', () => {
+  const result = validateWorkSession({
+    date: '2026-08-29',
+    startTime: new Date('2026-08-29T12:02:00').getTime(),
+    endTime: new Date('2026-08-29T14:06:00').getTime()
+  });
+
+  expect(result.valid).toBe(true);
+  expect(result.errors).toHaveLength(0);
+});
+
 test('validateWorkSession rejects missing date', () => {
   const result = validateWorkSession({
     startTime: '09:00',
