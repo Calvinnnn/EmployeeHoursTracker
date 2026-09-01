@@ -1,8 +1,12 @@
 import {
     getAttendanceDays,
     getTotalAttendanceHours,
-    deleteAttendanceSession
+    deleteAttendanceSession,
+    updateAttendanceSession
 } from "./attendanceService.js";
+
+import { getWorkSessionById } from "../../db/repositories/workSessionRepository.js";
+import { validateWorkSession } from "../work-sessions/workSessionValidation.js";
 
 import {
     formatDateForDisplay,
@@ -17,6 +21,8 @@ import {
 import {
     calculateEarnings
 } from "../../calculations/earnings.js";
+
+import { calculateDuration } from "../../calculations/hours.js";
 
 import {
     showModal
@@ -94,6 +100,13 @@ export async function renderAttendanceDays() {
             });
         });
 
+        tableBody.querySelectorAll(".edit-session-btn").forEach((button) => {
+            button.addEventListener("click", async (event) => {
+                const sessionId = event.currentTarget.dataset.sessionId;
+                await handleEditSession(sessionId);
+            });
+        });
+
     } catch (error) {
         console.error("Failed to load attendance days:", error);
         tableBody.innerHTML = `
@@ -124,6 +137,14 @@ function createAttendanceRow(day) {
             ${day.readableDuration || formatHours(day.totalHours)}
         </td>
         <td>
+            <button
+                type="button"
+                class="edit-session-btn"
+                data-session-id="${day.id}"
+                aria-label="تعديل سجل الحضور"
+            >
+                ✏️ تعديل
+            </button>
             <button
                 type="button"
                 class="delete-session-btn"
@@ -238,4 +259,149 @@ async function handleShowTotalHours() {
     } catch (error) {
         console.error("Failed to calculate total hours:", error);
     }
+}
+
+/**
+ * Convert a stored value (timestamp or HH:MM) into an input-friendly HH:MM string.
+ */
+function toTimeInputValue(value) {
+    if (!value && value !== 0) return "";
+
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+        if (/^\d{1,2}:\d{2}$/.test(trimmed)) {
+            const parts = trimmed.split(":");
+            return `${String(parts[0]).padStart(2, "0")}:${String(parts[1]).padStart(2, "0")}`;
+        }
+        const ts = Number(trimmed);
+        if (Number.isFinite(ts)) value = ts;
+    }
+
+    const ts = Number(value);
+    if (!Number.isFinite(ts)) return "";
+    const d = new Date(ts);
+    if (Number.isNaN(d.getTime())) return "";
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+/**
+ * Convert a date (ISO) and HH:MM input value into a timestamp (ms).
+ */
+function inputValueToTimestamp(dateIso, timeValue) {
+    if (!timeValue) return null;
+    // Create local datetime
+    const iso = `${dateIso}T${timeValue}:00`;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.getTime();
+}
+
+/**
+ * Open edit modal for a session id.
+ */
+async function handleEditSession(sessionId) {
+    if (!sessionId) return;
+
+    const session = await getWorkSessionById(sessionId);
+    if (!session) {
+        toast("سجل العمل غير موجود.", "error");
+        return;
+    }
+
+    const startInputVal = toTimeInputValue(session.startTime);
+    const endInputVal = toTimeInputValue(session.endTime);
+
+    const modalContent = `
+        <div style="min-width:280px; max-width:520px;">
+            <h3 style="margin:0 0 8px 0;">تعديل سجل الحضور</h3>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <label>وقت الحضور
+                    <input id="edit-start-time" type="time" value="${startInputVal}" />
+                </label>
+                <label>وقت الانصراف
+                    <input id="edit-end-time" type="time" value="${endInputVal}" />
+                </label>
+                <div id="edit-duration" style="margin-top:6px;color:var(--color-text, #111)">مدة العمل: —</div>
+            </div>
+        </div>
+    `;
+
+    const modal = showModal(modalContent, {
+        confirmText: "حفظ التعديل",
+        cancelText: "إلغاء",
+        onConfirm: async () => {
+            const startVal = document.getElementById("edit-start-time").value;
+            const endVal = document.getElementById("edit-end-time").value;
+
+            const newStartTs = inputValueToTimestamp(session.date, startVal);
+            const newEndTs = inputValueToTimestamp(session.date, endVal);
+
+            const validation = (function(){
+                try {
+                    return validateWorkSession({ date: session.date, startTime: newStartTs, endTime: newEndTs });
+                } catch (e) {
+                    return { valid: false, errors: [e.message] };
+                }
+            })();
+
+            if (!validation.valid) {
+                toast(validation.errors.join(" "), "error");
+                return;
+            }
+
+            const durationMinutes = calculateDuration(newStartTs, newEndTs);
+
+            try {
+                await updateAttendanceSession(sessionId, {
+                    startTime: newStartTs,
+                    endTime: newEndTs,
+                    durationMinutes
+                });
+
+                await renderAttendanceDays();
+                currentTotalHours = await getTotalAttendanceHours();
+                await updateEarnings();
+                toast("✓ تم تحديث سجل الحضور بنجاح", "success");
+                modal.remove();
+            } catch (err) {
+                console.error("Failed to update session:", err);
+                toast("حدث خطأ أثناء تحديث السجل. حاول مرة أخرى.", "error");
+            }
+        },
+        onCancel: () => {
+            modal.remove();
+        }
+    });
+
+    // live updates: recalc duration when inputs change
+    const startEl = modal.querySelector("#edit-start-time");
+    const endEl = modal.querySelector("#edit-end-time");
+    const durationEl = modal.querySelector("#edit-duration");
+
+    function recalc() {
+        const s = startEl.value;
+        const e = endEl.value;
+        const sTs = inputValueToTimestamp(session.date, s);
+        const eTs = inputValueToTimestamp(session.date, e);
+        const mins = calculateDuration(sTs, eTs);
+        if (mins && mins > 0) {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            durationEl.textContent = `مدة العمل: ${h > 0 ? h + "س " : ""}${m}د`;
+            // update earnings preview if present
+            const rateEl = document.getElementById("hourly-rate-input");
+            if (rateEl) {
+                const rate = parseFloat(rateEl.value) || 0;
+                const earnings = calculateEarnings(mins / 60, rate);
+                const earningsEl = document.getElementById("estimated-earnings-value");
+                if (earningsEl) earningsEl.textContent = `${earnings.toFixed(2)} ج.م`;
+            }
+        } else {
+            durationEl.textContent = "مدة العمل: غير صالحة";
+        }
+    }
+
+    if (startEl) startEl.addEventListener("input", recalc);
+    if (endEl) endEl.addEventListener("input", recalc);
+    recalc();
 }

@@ -3,6 +3,8 @@ import {
     deleteWorkSession
 } from "../../db/repositories/workSessionRepository.js";
 
+import { updateWorkSession } from "../../db/repositories/workSessionRepository.js";
+
 import {
     calculateDuration,
     formatDuration
@@ -55,4 +57,15 @@ export async function getTotalAttendanceHours() {
  */
 export async function deleteAttendanceSession(id) {
     await deleteWorkSession(id);
+}
+
+/**
+ * Update an attendance/work session with partial changes.
+ * Preserves other fields and only updates provided keys.
+ *
+ * @param {string} id
+ * @param {Object} changes
+ */
+export async function updateAttendanceSession(id, changes) {
+    await updateWorkSession(id, changes);
 }
